@@ -1,0 +1,14 @@
+{
+  "name": "m3u8-player",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/deciding/m3u8-player.git",
+  "author": "deciding <zhangzn710@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.17.1",
+    "hls-server": "^1.5.0",
+    "mustache": "^4.2.0",
+    "mustache-express": "^1.3.0"
+  }
+}
