@@ -61,7 +61,7 @@ function vidFullscreen() {
 //playM3u8(window.location.href.split("#")[1])
 playM3u8(document.getElementById('uri').innerHTML)
 
-window.onkeydown = vidCtrl;
+//window.onkeydown = vidCtrl;
 
 //function vidCtrl(e) {
 //  const vid = video;
