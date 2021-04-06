@@ -12,9 +12,9 @@ function playM3u8(url){
       //hls.loadSource("https://b.mahua-kb.com/20200726/L2VwR3YM/index.m3u8")
       hls.attachMedia(video);
       hls.on(Hls.Events.MANIFEST_PARSED,function() {
-        video.muted = true;
-        video.muted = false;
-        video.play();
+        //video.muted = true;
+        //video.muted = false;
+        //video.play();
       });
       document.title = url
     }
@@ -60,6 +60,34 @@ function vidFullscreen() {
 
 //playM3u8(window.location.href.split("#")[1])
 playM3u8(document.getElementById('uri').innerHTML)
+
+window.onkeydown = vidCtrl;
+
+//function vidCtrl(e) {
+//  const vid = video;
+//  const key = e.code;
+//
+//  if (key === 'ArrowLeft') {
+//    vid.currentTime -= 5;
+//    if (vid.currentTime < 0) {
+//      vid.pause();
+//      vid.currentTime = 0;
+//    }
+//  } else if (key === 'ArrowRight') {
+//    vid.currentTime += 5;
+//    if (vid.currentTime > vid.duration) {
+//      vid.pause();
+//      vid.currentTime = 0;
+//    }
+//  } else if (key === 'Space') {
+//    if (vid.paused || vid.ended) {
+//      vid.play();
+//    } else {
+//      vid.pause();
+//    }
+//  }
+//}
+
 $(window).on('load', function () {
     //video = document.getElementById('video');
     //playM3u8($('#uri')[0].text)

@@ -9,7 +9,8 @@ const hls = require('hls-server');
 var mustacheExpress = require('mustache-express');
 const { pathToFileURL } = require('url');
 const app = express();
-const port = 3000;
+//const port = 3000;
+const port = 6006;
 
 // Register '.html' extension with The Mustache Express
 app.engine('html', mustacheExpress());

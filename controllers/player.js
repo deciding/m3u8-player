@@ -1,6 +1,8 @@
 var express = require('express');
 var fs = require('fs');
 var path = require('path');
+//var request = require('request')
+//var debug = require('request-debug')
 const url = require('url');
 const { exec } = require("child_process");
 
@@ -12,6 +14,32 @@ if (!fs.existsSync(download_path)){
 }
 
 var router = express.Router();
+
+//function check_contains_m3u8_req(log_reqs){
+//  for(idx in log_reqs){
+//    log_req = log_reqs[idx]
+//    if(log_req.uri && log_req.uri.endsWith('.m3u8'))
+//      return log_req.uri
+//  }
+//  return null
+//}
+//
+//function get_m3u8_from_url(req_url){
+//  if(req_url.endsWith('.m3u8'))
+//    return req_url
+//  var log_reqs = []
+//  debug(request, function(type, data, r) {
+//    if(type=='request')
+//      log_reqs.push(data)
+//  })
+//  request(req_url)
+//  var actual_url = check_contains_m3u8_req(log_reqs)
+//  while(!actual_url){
+//    actual_url = check_contains_m3u8_req(log_reqs)
+//  }
+//  return actual_url
+//
+//}
 
 function waitFileExists(filepath, filename, timeout=2000) {
   var currentTime = +new Date();
@@ -75,6 +103,7 @@ function waitOneFileExists(filepath, timeout=2000) {
 };
 
 router.get('/', (req, res) => {
+  //req.query.uri = get_m3u8_from_url(req.query.uri)
   var cache_file = path.join(download_path, 'url_file_cache')
   var lines = []
   if (!fs.existsSync(cache_file)){
