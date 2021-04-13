@@ -61,41 +61,62 @@ function vidFullscreen() {
 //playM3u8(window.location.href.split("#")[1])
 playM3u8(document.getElementById('uri').innerHTML)
 
-//window.onkeydown = vidCtrl;
+window.onkeydown = vidCtrl;
+function vidCtrl(e) {
+  const vid = video;
+  const key = e.code;
 
-//function vidCtrl(e) {
-//  const vid = video;
-//  const key = e.code;
-//
-//  if (key === 'ArrowLeft') {
-//    vid.currentTime -= 5;
-//    if (vid.currentTime < 0) {
-//      vid.pause();
-//      vid.currentTime = 0;
-//    }
-//  } else if (key === 'ArrowRight') {
-//    vid.currentTime += 5;
-//    if (vid.currentTime > vid.duration) {
-//      vid.pause();
-//      vid.currentTime = 0;
-//    }
-//  } else if (key === 'Space') {
-//    if (vid.paused || vid.ended) {
-//      vid.play();
-//    } else {
-//      vid.pause();
-//    }
-//  }
-//}
-
-$(window).on('load', function () {
-    //video = document.getElementById('video');
-    //playM3u8($('#uri')[0].text)
-    $('#video').on('click', function(){this.paused?this.play():this.pause();});
-    Mousetrap.bind('space', playPause);
-    Mousetrap.bind('up', volumeUp);
-    Mousetrap.bind('down', volumeDown);
-    Mousetrap.bind('right', seekRight);
-    Mousetrap.bind('left', seekLeft);
-    Mousetrap.bind('f', vidFullscreen);
+  if (key === 'ArrowLeft') {
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    vid.currentTime -= 5;
+    if (vid.currentTime < 0) {
+      vid.pause();
+      vid.currentTime = 0;
+    }
+  } else if (key === 'ArrowRight') {
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    vid.currentTime += 5;
+    if (vid.currentTime > vid.duration) {
+      vid.pause();
+      vid.currentTime = 0;
+    }
+  } else if (key === 'Space') {
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    if (vid.paused || vid.ended) {
+      vid.play();
+    } else {
+      vid.pause();
+    }
+  }
+}
+$('#video').on('click', function(){
+    //this.paused?this.play():this.pause();
+    this.blur();
 });
+$('#video').on('seeking', function(){
+    //this.paused?this.play():this.pause();
+    this.blur();
+});
+$('#video').on('play', function(){
+    //this.paused?this.play():this.pause();
+    this.blur();
+});
+$('#video').on('pause', function(){
+    //this.paused?this.play():this.pause();
+    this.blur();
+});
+
+//$(window).on('load', function () {
+//    //video = document.getElementById('video');
+//    //playM3u8($('#uri')[0].text)
+//    $('#video').on('click', function(){this.paused?this.play():this.pause();});
+//    Mousetrap.bind('space', playPause);
+//    Mousetrap.bind('up', volumeUp);
+//    Mousetrap.bind('down', volumeDown);
+//    Mousetrap.bind('right', seekRight);
+//    Mousetrap.bind('left', seekLeft);
+//    Mousetrap.bind('f', vidFullscreen);
+//});

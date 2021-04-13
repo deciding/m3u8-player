@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path')
 const m3u8 = require('./controllers/m3u8.js');
 const player= require('./controllers/player.js');
+const user= require('./controllers/user.js');
 const download_url_sync = require('./tools/download_url_sync.js')
 const hls = require('hls-server');
 
@@ -26,12 +27,13 @@ app.get('/', (req, res) => {
 //});
 
 // statics
-//app.use(express.static('downloads/keys'));
+app.use(express.static('downloads'));
 app.use(express.static('views'));
 
 // controllers for the route "m3u8"
 app.use('/m3u8', m3u8);
 app.use('/player', player);
+app.use('/user', user);
 
 const server = app.listen(port, () => {
   console.log(`Example app listening on port ${port}!`)
@@ -71,10 +73,10 @@ new hls(server, {
           fs.access(get_video_path(req.url), fs.constants.F_OK, function (err) {
               if (err) {
                 console.log('File not exist');
-                while (!fs.existsSync(get_video_path(req.url))){
-                }
-                //return cb(null, false);
-                return cb(null, true);
+                //while (!fs.existsSync(get_video_path(req.url))){
+                //}
+                return cb(null, false);
+                //return cb(null, true);
               }
               cb(null, true);
           });

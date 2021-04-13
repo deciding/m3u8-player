@@ -5,6 +5,7 @@ var path = require('path');
 //var debug = require('request-debug')
 const url = require('url');
 const { exec } = require("child_process");
+const spawn = require("child_process").spawn;
 
 const download_path = 'downloads'
 const download_cmd = '../m3u8/build/m3u8'
@@ -121,19 +122,34 @@ router.get('/', (req, res) => {
     res.render('player', {'uri': url_file_map.get(req.query.uri)})
   }
   else{
-    exec(`${download_cmd} -u ${req.query.uri} -o ${download_path}`, (error, stdout, stderr) => {
-        if (error) {
-            console.log(`error: ${error.message}`);
-            return;
-        }
-        if (stderr) {
-            console.log(`stderr: ${stderr}`);
-            return;
-        }
-        console.log(`stdout: ${stdout}`);
-    });
-
     var m3u8_name = path.basename(req.query.uri);
+    if(!m3u8_name.endsWith('.m3u8')){
+      res.render('player', {'uri': ''})
+      return
+    }
+    //exec(`${download_cmd} -u ${req.query.uri} -o ${download_path} -c 16`, (error, stdout, stderr) => {
+    //    if (error) {
+    //        console.log(`error: ${error.message}`);
+    //        return;
+    //    }
+    //    if (stderr) {
+    //        console.log(`stderr: ${stderr}`);
+    //        return;
+    //    }
+    //    console.log(`stdout: ${stdout}`);
+    //});
+    dl_th = spawn(`${download_cmd}`, ['-u', `${req.query.uri}`, '-o', `${download_path}`, '-c', '16'])
+    dl_th.stdout.on('data', function (data) {
+      if (data.toString().includes('[failed]'))
+        return
+      console.log('stdout: ' + data);
+    });
+    dl_th.stderr.on('data', function (data) {
+      console.log('stderr: ' + data);
+    });
+    
+
+
     var actualFileName = waitFileExists(download_path, m3u8_name)
     var m3u8_org_file = `${path.parse(actualFileName).name}_org${path.parse(actualFileName).ext}`
 
@@ -157,7 +173,10 @@ router.get('/', (req, res) => {
     var m3u8_org_parse = path.parse(m3u8_org_path)
     var data = JSON.stringify(Object.fromEntries(ts_url_map));
     fs.writeFileSync(`${m3u8_org_parse.dir}/${m3u8_org_parse.name}.json`, data);
-    fs.appendFileSync(cache_file, `${req.query.uri} ${actualFileName}\n`, 'utf-8');
+    if (req.query.rf!=undefined)
+      fs.appendFileSync(cache_file, `${req.query.uri} ${actualFileName} ${req.query.rf}\n`, 'utf-8');
+    else
+      fs.appendFileSync(cache_file, `${req.query.uri} ${actualFileName}\n`, 'utf-8');
     res.render('player', {'uri': actualFileName})
   }
 });

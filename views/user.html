@@ -1,0 +1,27 @@
+<script type="text/javascript" src="jquery.min.js"></script>
+<script type="text/javascript" src="user_view.js"></script>
+<!--script type="text/javascript" src="h5gl/html5gallery/html5gallery.js"></script-->
+<!--div style="display:none;" class="html5gallery" data-skin="darkness" data-width="480" data-height="272"-->
+<div>
+
+     <!-- Add videos to Gallery -->
+    <!--a href="images/Big_Buck_Bunny.mp4"></a>
+    <video controls="controls" preload="metadata">
+        <source src="https://www.w3schools.com/html/mov_bbb.mp4#t=0.5" type="video/mp4">
+    </video-->
+    {{#meta}}
+        <div id="{{iid}}div" >
+        <video loop style="width: 20%; height: 20%;" muted>
+            <source src="{{src}}" type="video/mp4">
+            src not found
+        </video>
+        <br/>
+        <label>Downloaded: {{completed}}</label>
+        <label>
+            <a href="{{url}}">Name: {{name}}. </a>
+            <a id="{{iid}}" class='delete' >[X]</a>
+        </label>
+        </div>
+    {{/meta}}
+  
+</div>
