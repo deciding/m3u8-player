@@ -42,6 +42,7 @@ var router = express.Router();
 //
 //}
 
+/*  Wait for the existence of some file*/
 function waitFileExists(filepath, filename, timeout=2000) {
   var currentTime = +new Date();
   var fileExists = false;
@@ -80,6 +81,7 @@ function waitFileExists(filepath, filename, timeout=2000) {
   return actualFileName
 };
 
+/*  Wait for the existence of some file*/
 function waitOneFileExists(filepath, timeout=2000) {
   var fileExists = false
   //const intervalObj = setInterval(function() {
@@ -103,6 +105,7 @@ function waitOneFileExists(filepath, timeout=2000) {
   }
 };
 
+/*  Start of Router */
 router.get('/', (req, res) => {
   //req.query.uri = get_m3u8_from_url(req.query.uri)
   var cache_file = path.join(download_path, 'url_file_cache')
@@ -138,7 +141,7 @@ router.get('/', (req, res) => {
     //    }
     //    console.log(`stdout: ${stdout}`);
     //});
-    dl_th = spawn(`${download_cmd}`, ['-u', `${req.query.uri}`, '-o', `${download_path}`, '-c', '16'])
+    var dl_th = spawn(`${download_cmd}`, ['-u', `${req.query.uri}`, '-o', `${download_path}`, '-c', '16'])
     dl_th.stdout.on('data', function (data) {
       if (data.toString().includes('[failed]'))
         return
@@ -179,6 +182,81 @@ router.get('/', (req, res) => {
       fs.appendFileSync(cache_file, `${req.query.uri} ${actualFileName}\n`, 'utf-8');
     res.render('player', {'uri': actualFileName})
   }
+});
+
+var ocr_flag=false
+var ocr_res=''
+
+router.get('/ocr', (req, res) => {
+    ocr_flag=false;
+    var currentTime = parseFloat(req.query.currentTime)
+    var uri = req.query.uri // m3u8 file path
+
+    var m3u8_path = path.join(download_path, uri)
+    fs.readFile(m3u8_path, encoding='utf8', function (err,data) {
+      if (err) {
+        return console.log(err);
+      }
+      //console.log(data);
+      lines = data.split(/\r\n|\r|\n/)
+      lines = lines.filter(Boolean)
+      // only for a single user
+      var line = ''
+      var dur = 0;
+
+      var idx = 0;
+      var len = lines.length;
+      for (; idx < len; ) {
+        line=lines[idx]
+        if(line.startsWith('#EXTINF:')){
+          dur = parseFloat(line.slice(8, -1))
+          idx++;
+          line=lines[idx]
+          if(line.endsWith('.ts')){
+            if(currentTime<=dur){
+              console.log(`ffmpeg -y -i ${download_path}/${line} -ss ${currentTime} -vframes 1 ${download_path}/extracted.jpg`)
+              //var extract_th = spawn('ffmpeg', ['-y', '-i', `${download_path}/${line}`, '-ss', `${currentTime}`, '-vframes', '1', `${download_path}/extracted.jpg`])
+              //extract_th.stdout.on('data', function (data) {
+              //  console.log('stdout: ' + data);
+              //  var ocr_th = spawn('python', ['../google-api/google-ocr/ocr.py', `${download_path}/extracted.jpg`])
+              exec(`ffmpeg -y -i ${download_path}/${line} -ss ${currentTime} -vframes 1 ${download_path}/extracted.jpg`, (error, stdout, stderr) => {
+                if (error) {
+                    console.log(`error: ${error.message}`);
+                    return;
+                }
+                if (stderr) {
+                    console.log(`stderr: ${stderr}`);
+                    //return;
+                }
+                console.log(`stdout: ${stdout}`);
+                exec(`python ../google-api/google-ocr/ocr.py ${download_path}/extracted.jpg ${download_path}/optimized.png`, (error, stdout, stderr) => {
+                    if (error) {
+                        console.log(`error: ${error.message}`);
+                        return;
+                    }
+                    if (stderr) {
+                        console.log(`stderr: ${stderr}`);
+                        return;
+                    }
+                    console.log(`stdout: ${stdout}`);
+                    ocr_res=stdout
+                    ocr_flag=true
+                });
+              });
+
+              break
+            }
+          }
+          currentTime-=dur
+        }
+        idx++;
+      }
+    });
+    res.send('');
+});
+
+router.get('/ocrCheck', (req, res) => {
+    res.json(ocr_flag?{'imgURL': 'optimized.png', 'text': ocr_res}:{});
 });
 
 module.exports = router

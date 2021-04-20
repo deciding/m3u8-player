@@ -48,7 +48,7 @@ new hls(server, {
       exists: (req, cb) => {
           const ext = req.url.split('.').pop();
 
-          if (req.url.startsWith('/player\?') || ext !== 'm3u8' && ext !== 'ts') {
+          if (req.url.startsWith('/player') || ext !== 'm3u8' && ext !== 'ts') {
               return cb(null, true);
           }
           //if (!fs.existsSync(get_video_path(req.url))){

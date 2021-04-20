@@ -5,6 +5,82 @@
   crossorigin="anonymous"></script>
   <script src="mousetrap.min.js" charset="utf-8"></script>
   <style>
+    /* The Modal (background) */
+    .modal {
+      display: none; /* Hidden by default */
+      position: fixed; /* Stay in place */
+      z-index: 1; /* Sit on top */
+      padding-top: 100px; /* Location of the box */
+      left: 0;
+      top: 0;
+      width: 100%; /* Full width */
+      height: 100%; /* Full height */
+      overflow: scroll; /* Enable scroll if needed */
+      background-color: rgb(0,0,0); /* Fallback color */
+      background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    }
+
+    /* Modal Content */
+    .modal-content {
+      background-color: #fefefe;
+      margin: auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%;
+      height: 80%;
+    }
+
+    /* The Close Button */
+    .close {
+      color: #aaaaaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+    .close:hover,
+    .close:focus {
+      color: #000;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    /* Side Nav */
+    #mySidenav a {
+      position: absolute;
+      left: -80px;
+      transition: 0.3s;
+      padding: 15px;
+      width: 100px;
+      text-decoration: none;
+      font-size: 10;
+      color: white;
+      border-radius: 0 5px 5px 0;
+    }
+
+    #mySidenav a:hover {
+      left: 0;
+    }
+
+    #asr {
+      top: 20px;
+      background-color: #4CAF50;
+    }
+
+    #ocr {
+      top: 80px;
+      background-color: #2196F3;
+    }
+
+    #superres {
+      top: 140px;
+      background-color: #f44336;
+    }
+
+    #contact {
+      top: 200px;
+      background-color: #555
+    }
     body{
       background-color:black;
     }
@@ -23,6 +99,24 @@
 <title>M3U8 Player running...</title></head>
 <body>
   <video id="video" style="width: 100%; height: 100%;" controls="" ></video>
+  <!-- Side Nav -->
+  <div id="mySidenav" class="sidenav">
+    <a href="#" id="asr">ASR</a>
+    <a href="#" id="ocr">OCR</a>
+    <a href="#" id="superres">SuperRes</a>
+  </div>
+
+  <!-- The Modal -->
+  <div id="myModal" class="modal">
+    <!-- Modal content -->
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <img id='translated-img' style='width: 60%; height: 60%;'/>
+      <p id='translated-text'>Some text in the Modal..</p>
+    </div>
+
+  </div>
+
   <div id="uri" style="display: none;">{{uri}}</div>
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <script src="player.js"></script>

@@ -109,6 +109,64 @@ $('#video').on('pause', function(){
     this.blur();
 });
 
+// Get the modal
+var modal = document.getElementById("myModal");
+// Get the <span> element that closes the modal
+var span = document.getElementsByClassName("close")[0];
+// When the user clicks on <span> (x), close the modal
+span.onclick = function() {
+  modal.style.display = "none";
+}
+// When the user clicks anywhere outside of the modal, close it
+window.onclick = function(event) {
+  if (event.target == modal) {
+    modal.style.display = "none";
+  }
+}
+
+$("#ocr").click(function(e) {
+  var curtime = $('#video')[0].currentTime
+  var uri = document.getElementById('uri').innerHTML
+  const Http = new XMLHttpRequest();
+  const url='player/ocr?currentTime='+curtime+'&uri='+uri
+  Http.open("GET", url);
+  Http.send();
+  Http.onreadystatechange = (e) => {
+    if(Http.readyState === XMLHttpRequest.DONE) {
+      console.log(this.responseText)
+      const checkUrl='player/ocrCheck'
+      var checkReturned = true;
+      const keepCheck=setInterval(function(){
+        if(checkReturned){
+          const Http = new XMLHttpRequest();
+          Http.overrideMimeType("application/json");
+          Http.open("GET", checkUrl);
+          checkReturned = false;
+          Http.send();
+          Http.onreadystatechange = (e) => {
+            if(Http.readyState === XMLHttpRequest.DONE) {
+              checkReturned=true
+              res=Http.responseText
+              if(typeof(res)=='string' && jQuery.isEmptyObject(JSON.parse(res)))
+                return
+              if(res && !jQuery.isEmptyObject(res))
+                res=JSON.parse(res)
+                imgURL=res['imgURL']
+                text=res['text']
+                text = text.replace(/(?:\r\n|\r|\n)/g, '<br>');
+                //$('#translated-img').prop("src", imgURL)
+                $('#translated-img').prop("src", imgURL+"?t=" + new Date().getTime())
+                $('#translated-text').html(text)
+                modal.style.display = "block";
+                clearInterval(keepCheck);
+            }
+          };
+        }
+      }, 500);
+    }
+  }
+});
+
 //$(window).on('load', function () {
 //    //video = document.getElementById('video');
 //    //playM3u8($('#uri')[0].text)
