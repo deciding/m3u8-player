@@ -6,6 +6,13 @@
   "author": "deciding <zhangzn710@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "accesscontrol": "^2.2.1",
+    "bcrypt": "^5.0.1",
+    "body-parser": "^1.19.0",
+    "cookie-parser": "^1.4.5",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^5.12.10",
+    "dotenv": "^9.0.2",
     "express": "^4.17.1",
     "glob": "^7.1.6",
     "hls-server": "^1.5.0",

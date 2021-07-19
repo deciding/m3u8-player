@@ -10,6 +10,16 @@ $(document).ready(function() {
             console.log(Http.responseText)
         }
     });         
+    $(".redownload").click(function(e) {
+        const Http = new XMLHttpRequest();
+        var iid = e.target.id.slice(3)
+        const url='user/redownload?iid='+iid
+        Http.open("GET", url);
+        Http.send();
+        Http.onreadystatechange = (e) => {
+            console.log(Http.responseText)
+        }
+    });         
     $("video").on("mouseover", function(event) {
         this.play();
     }).on('mouseout', function(event) {

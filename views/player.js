@@ -1,23 +1,31 @@
 var video = document.getElementById('video');
 //var video
 
-function playM3u8(url){
+function createVideo(res){
+  if(typeof(res)=='string' && jQuery.isEmptyObject(JSON.parse(res)))
+    return false;
+
+  res=JSON.parse(res)
+  url = res['uri']
+  if(url=='')
+    return false;
+
   if(Hls.isSupported()) {
-      video.volume = 0.3;
-      var hls = new Hls();
-      var m3u8Url = decodeURIComponent(url)
-      console.log(m3u8Url)
-      hls.loadSource(m3u8Url);
-      //hls.loadSource("index.m3u8");
-      //hls.loadSource("https://b.mahua-kb.com/20200726/L2VwR3YM/index.m3u8")
-      hls.attachMedia(video);
-      hls.on(Hls.Events.MANIFEST_PARSED,function() {
-        //video.muted = true;
-        //video.muted = false;
-        //video.play();
-      });
-      document.title = url
-    }
+    video.volume = 0.3;
+    var hls = new Hls();
+    var m3u8Url = decodeURIComponent(url)
+    console.log(m3u8Url)
+    hls.loadSource(m3u8Url);
+    //hls.loadSource("index.m3u8");
+    //hls.loadSource("https://b.mahua-kb.com/20200726/L2VwR3YM/index.m3u8")
+    hls.attachMedia(video);
+    hls.on(Hls.Events.MANIFEST_PARSED,function() {
+      //video.muted = true;
+      //video.muted = false;
+      //video.play();
+    });
+    document.title = url
+  }
 	else if (video.canPlayType('application/vnd.apple.mpegurl')) {
 		video.src = url;
 		video.addEventListener('canplay',function() {
@@ -25,7 +33,41 @@ function playM3u8(url){
 		});
 		video.volume = 0.3;
 		document.title = url;
-  	}
+  }
+  return true;
+}
+
+function keepCheckUrl(Http, url, cb_check) {
+  if(Http.readyState === XMLHttpRequest.DONE) {
+    var checkReturned = true;
+    const keepCheck=setInterval(function(){
+      if(checkReturned){
+        const Http = new XMLHttpRequest();
+        Http.overrideMimeType("application/json");
+        Http.open("GET", url);
+        checkReturned = false;
+        Http.send();
+        Http.onreadystatechange = (e) => {
+          if(Http.readyState === XMLHttpRequest.DONE) {
+            checkReturned=true
+            res=Http.responseText
+            if (cb_check(res))
+              clearInterval(keepCheck);
+          }
+        };
+      }
+    }, 500);
+  }
+}
+
+function playM3u8(url_dict){
+  if(!createVideo(url_dict)){
+    const Http = new XMLHttpRequest();
+    const reqUrl='player_check'+window.location.search;
+    Http.open("GET", reqUrl);
+    Http.send();
+    keepCheckUrl(Http, reqUrl, createVideo);
+  }
 }
 
 function playPause() {
@@ -59,7 +101,7 @@ function vidFullscreen() {
 }
 
 //playM3u8(window.location.href.split("#")[1])
-playM3u8(document.getElementById('uri').innerHTML)
+playM3u8(`{"uri": "${document.getElementById('uri').innerHTML}"}`)
 
 window.onkeydown = vidCtrl;
 function vidCtrl(e) {
@@ -124,6 +166,22 @@ window.onclick = function(event) {
   }
 }
 
+function processOcrRes(res){
+  if(typeof(res)=='string' && jQuery.isEmptyObject(JSON.parse(res)))
+    return false;
+  // if(res && !jQuery.isEmptyObject(res))
+  res=JSON.parse(res)
+  imgURL=res['imgURL']
+  text=res['text']
+  text = text.replace(/(?:\r\n|\r|\n)/g, '<br>');
+  //$('#translated-img').prop("src", imgURL)
+  $('#translated-img').prop("src", imgURL+"?t=" + new Date().getTime())
+  $('#translated-text').html(text)
+  modal.style.display = "block";
+  return true
+}
+
+// TODO: abstract this
 $("#ocr").click(function(e) {
   var curtime = $('#video')[0].currentTime
   var uri = document.getElementById('uri').innerHTML

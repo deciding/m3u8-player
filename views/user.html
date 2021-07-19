@@ -1,27 +1,43 @@
-<script type="text/javascript" src="jquery.min.js"></script>
-<script type="text/javascript" src="user_view.js"></script>
-<!--script type="text/javascript" src="h5gl/html5gallery/html5gallery.js"></script-->
-<!--div style="display:none;" class="html5gallery" data-skin="darkness" data-width="480" data-height="272"-->
-<div>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+</head>
 
-     <!-- Add videos to Gallery -->
-    <!--a href="images/Big_Buck_Bunny.mp4"></a>
-    <video controls="controls" preload="metadata">
-        <source src="https://www.w3schools.com/html/mov_bbb.mp4#t=0.5" type="video/mp4">
-    </video-->
-    {{#meta}}
-        <div id="{{iid}}div" >
-        <video loop style="width: 20%; height: 20%;" muted>
-            <source src="{{src}}" type="video/mp4">
-            src not found
-        </video>
-        <br/>
-        <label>Downloaded: {{completed}}</label>
-        <label>
-            <a href="{{url}}">Name: {{name}}. </a>
-            <a id="{{iid}}" class='delete' >[X]</a>
-        </label>
-        </div>
-    {{/meta}}
-  
-</div>
+<body>
+    <script type="text/javascript" src="jquery.min.js"></script>
+    <script type="text/javascript" src="user_view.js"></script>
+    <!--script type="text/javascript" src="h5gl/html5gallery/html5gallery.js"></script-->
+    <!--div style="display:none;" class="html5gallery" data-skin="darkness" data-width="480" data-height="272"-->
+    <div class="jumbotron text-center">
+        <h1>Video Playlist</h1>
+        <p>Warning: ABC</p> 
+    </div>
+
+    <div class="container">
+
+            <!-- Add videos to Gallery -->
+            <!--a href="images/Big_Buck_Bunny.mp4"></a>
+            <video controls="controls" preload="metadata">
+                <source src="https://www.w3schools.com/html/mov_bbb.mp4#t=0.5" type="video/mp4">
+            </video-->
+            {{#meta}}
+                <div id="{{iid}}div" class="col-sm-4">
+                <video loop style="width: 100%; height: 30%;" muted>
+                    <source src="{{src}}" type="video/mp4">
+                    src not found
+                </video>
+                <br/>
+                <label>Downloaded: {{completed}}</label>
+                <label>
+                    <a href="{{url}}">Name: {{name}}. </a>
+                    <a id="{{iid}}" class='delete' >[X]</a>
+                    <a id="re_{{iid}}" class='redownload' >[O]</a>
+                </label>
+                </div>
+            {{/meta}}
+        
+    </div>
+</body>

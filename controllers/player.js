@@ -1,11 +1,12 @@
 var express = require('express');
 var fs = require('fs');
 var path = require('path');
-//var request = require('request')
-//var debug = require('request-debug')
 const url = require('url');
-const { exec } = require("child_process");
 const spawn = require("child_process").spawn;
+const { promisify } = require('util');
+const exec = promisify(require('child_process').exec)
+
+const { User, Video } = require('../models/models');
 
 const download_path = 'downloads'
 const download_cmd = '../m3u8/build/m3u8'
@@ -14,180 +15,85 @@ if (!fs.existsSync(download_path)){
   fs.mkdirSync(download_path);
 }
 
-var router = express.Router();
+exports.download_url = function(url, video, thread=16){
+  var dl_th = spawn(`${download_cmd}`, ['-u', `${url}`, '-o', `${download_path}`, '-c', `${thread}`])
+  video.completed = false;
+  video.save()
 
-//function check_contains_m3u8_req(log_reqs){
-//  for(idx in log_reqs){
-//    log_req = log_reqs[idx]
-//    if(log_req.uri && log_req.uri.endsWith('.m3u8'))
-//      return log_req.uri
-//  }
-//  return null
-//}
-//
-//function get_m3u8_from_url(req_url){
-//  if(req_url.endsWith('.m3u8'))
-//    return req_url
-//  var log_reqs = []
-//  debug(request, function(type, data, r) {
-//    if(type=='request')
-//      log_reqs.push(data)
-//  })
-//  request(req_url)
-//  var actual_url = check_contains_m3u8_req(log_reqs)
-//  while(!actual_url){
-//    actual_url = check_contains_m3u8_req(log_reqs)
-//  }
-//  return actual_url
-//
-//}
-
-/*  Wait for the existence of some file*/
-function waitFileExists(filepath, filename, timeout=2000) {
-  var currentTime = +new Date();
-  var fileExists = false;
-  var actualFileName = '';
-  //const intervalObj = setInterval(function() {
-  //  files = fs.readdirSync(path);
-  //  files.forEach(function(file) {
-  //    if(file.startsWith(path.basename(filename)) && file.endsWith('.m3u8') && fs.statSync(path+"/"+file).birthtimeMs >= currentTime){
-  //      fileExists=true
-  //      actualFileName=file
-  //    }
-  //  });
-
-  //  if (fileExists) {
-  //      clearInterval(intervalObj);
-  //  }
-  //}, timeout);
-  while(!fileExists){
-    files = fs.readdirSync(filepath);
-    files.forEach(function(file) {
-      if(file.startsWith(path.parse(filename).name) &&
-          file.endsWith('.m3u8') &&
-          !file.endsWith('_org.m3u8') &&
-          fs.statSync(filepath+"/"+file).birthtimeMs >= currentTime){
-        actualFileName=file
-        //#EXT-X-ENDLIST
-        lines = fs.readFileSync(filepath+"/"+actualFileName, encoding='utf8');
-        lines = lines.split(/\r\n|\r|\n/)
-        lines = lines.filter(Boolean)
-        lastline = lines[lines.length-1]
-        if(lastline == '#EXT-X-ENDLIST')
-          fileExists=true
-      }
-    });
-  }
-  return actualFileName
-};
-
-/*  Wait for the existence of some file*/
-function waitOneFileExists(filepath, timeout=2000) {
-  var fileExists = false
-  //const intervalObj = setInterval(function() {
-  //  const file = path;
-  //  const fileExists = fs.existsSync(file);
-
-  //  if (fileExists) {
-  //      clearInterval(intervalObj);
-  //  }
-  //}, timeout);
-  while(!fileExists){
-    if(fs.existsSync(filepath)){
-      //#EXT-X-ENDLIST
-      lines = fs.readFileSync(filepath, encoding='utf8');
-      lines = lines.split(/\r\n|\r|\n/)
-      lines = lines.filter(Boolean)
-      lastline = lines[lines.length-1]
-      if(lastline == '#EXT-X-ENDLIST')
-        fileExists=true
+  // monitoring
+  dl_th.stdout.on('data', function (data) {
+    if (data.toString().includes('stdout: Done!')){
+      video.compelted = true;
+      video.save()
     }
-  }
-};
+    if (data.toString().includes('[failed]'))
+      return
+    if (data.toString().includes('[FILEID]')){
+      lines = data.toString().split('\n')
+      for( var i = 0; i < lines.length; i++){
+        if(lines[i].includes('[FILEID]')){
+          var m3u8ID = lines[i].split(' ')[1]
+          video.token = m3u8ID
+          video.save()
+        }
+      }
+      return
+    }
+    console.log('stdout: ' + data);
+  });
+
+  dl_th.stderr.on('data', function (data) {
+    console.log('stderr: ' + data);
+  });
+}
 
 /*  Start of Router */
-router.get('/', (req, res) => {
-  //req.query.uri = get_m3u8_from_url(req.query.uri)
-  var cache_file = path.join(download_path, 'url_file_cache')
-  var lines = []
-  if (!fs.existsSync(cache_file)){
-    lines = []
-  }
-  else{
-    lines = fs.readFileSync(cache_file, encoding='utf8');
-    lines = lines.split(/\r\n|\r|\n/)
-    lines = lines.filter(Boolean)
-  }
-  var url_file_map = new Map();
-  lines.forEach(line => url_file_map.set(line.split(' ')[0], line.split(' ')[1]));
-
-  if(url_file_map.has(req.query.uri)){
-    res.render('player', {'uri': url_file_map.get(req.query.uri)})
+exports.generateVideoUri = async (req) => {
+  var uri;
+  var video = await Video.findOne({ url: req.query.uri });
+  if(video){
+    m3u8ID = video.token;
+    var fields = req.query.uri.split('.')
+    var ext = fields[fields.length - 1]
+    uri = m3u8ID == '' ? '' : `${m3u8ID}.${ext}`
+    return uri;
   }
   else{
     var m3u8_name = path.basename(req.query.uri);
     if(!m3u8_name.endsWith('.m3u8')){
-      res.render('player', {'uri': ''})
-      return
+      return '';
     }
-    //exec(`${download_cmd} -u ${req.query.uri} -o ${download_path} -c 16`, (error, stdout, stderr) => {
-    //    if (error) {
-    //        console.log(`error: ${error.message}`);
-    //        return;
-    //    }
-    //    if (stderr) {
-    //        console.log(`stderr: ${stderr}`);
-    //        return;
-    //    }
-    //    console.log(`stdout: ${stdout}`);
-    //});
-    var dl_th = spawn(`${download_cmd}`, ['-u', `${req.query.uri}`, '-o', `${download_path}`, '-c', '16'])
-    dl_th.stdout.on('data', function (data) {
-      if (data.toString().includes('[failed]'))
-        return
-      console.log('stdout: ' + data);
-    });
-    dl_th.stderr.on('data', function (data) {
-      console.log('stderr: ' + data);
-    });
-    
-
-
-    var actualFileName = waitFileExists(download_path, m3u8_name)
-    var m3u8_org_file = `${path.parse(actualFileName).name}_org${path.parse(actualFileName).ext}`
-
-    var reqURL = new URL(req.query.uri);
-    var reqMain = `${reqURL.protocol}//${reqURL.host}`
-    var m3u8_org_path = path.join(download_path, m3u8_org_file)
-    waitOneFileExists(m3u8_org_path)
-    lines = fs.readFileSync(m3u8_org_path, encoding='utf8');
-    lines = lines.split(/\r\n|\r|\n/)
-    lines = lines.filter(Boolean)
-    // only for a single user
-    var ts_url_map = new Map();
-    var line = ''
-    for(idx in lines){
-      line=lines[idx]
-      if(line.endsWith('.ts')){
-        ts_url_map.set(`${path.basename(line)}`, `${reqMain}${line}`)
-      }
-    }
-
-    var m3u8_org_parse = path.parse(m3u8_org_path)
-    var data = JSON.stringify(Object.fromEntries(ts_url_map));
-    fs.writeFileSync(`${m3u8_org_parse.dir}/${m3u8_org_parse.name}.json`, data);
-    if (req.query.rf!=undefined)
-      fs.appendFileSync(cache_file, `${req.query.uri} ${actualFileName} ${req.query.rf}\n`, 'utf-8');
-    else
-      fs.appendFileSync(cache_file, `${req.query.uri} ${actualFileName}\n`, 'utf-8');
-    res.render('player', {'uri': actualFileName})
+    var video = new Video({ url: req.query.uri, token: "", website:req.query.rf, completed: false});
+    await video.save();
+    var videoList = req.user.videoList;
+    videoList.push(video._id);
+    req.user.videoList = videoList;
+    await req.user.save()
+    exports.download_url(req.query.uri, video)
+    return '';
   }
-});
+
+}
+// keep pulling until token exists
+exports.checkVideo = async (req, res) => {
+  //req.query.uri = get_m3u8_from_url(req.query.uri)
+  var uri = await exports.generateVideoUri(req);
+  res.json({'uri': uri})
+}
+
+exports.playVideo = async (req, res) => {
+  //req.query.uri = get_m3u8_from_url(req.query.uri)
+  var uri = await exports.generateVideoUri(req);
+  res.render('player', {'uri': uri})
+}
+
+
 
 var ocr_flag=false
 var ocr_res=''
 
-router.get('/ocr', (req, res) => {
+// TODO: make this async and await
+exports.ocr = async (req, res) => {
     ocr_flag=false;
     var currentTime = parseFloat(req.query.currentTime)
     var uri = req.query.uri // m3u8 file path
@@ -253,10 +159,8 @@ router.get('/ocr', (req, res) => {
       }
     });
     res.send('');
-});
+}
 
-router.get('/ocrCheck', (req, res) => {
+exports.ocrCheck = async (req, res) => {
     res.json(ocr_flag?{'imgURL': 'optimized.png', 'text': ocr_res}:{});
-});
-
-module.exports = router
+}
