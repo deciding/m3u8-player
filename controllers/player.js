@@ -10,13 +10,20 @@ const { User, Video } = require('../models/models');
 
 const download_path = 'downloads'
 const download_cmd = '../m3u8/build/m3u8'
+const download_cmd2 = '../youtube-dl/download_ts.py'
 
 if (!fs.existsSync(download_path)){
   fs.mkdirSync(download_path);
 }
 
 exports.download_url = function(url, video, thread=16){
-  var dl_th = spawn(`${download_cmd}`, ['-u', `${url}`, '-o', `${download_path}`, '-c', `${thread}`])
+  var dl_th;
+  if(!url.endsWith('m3u8')){
+    dl_th = spawn(`python`, [download_cmd2, '-u', `${url}`, '-o', `${download_path}`, '--m3u8', `False`])
+  }
+  else{
+    dl_th = spawn(`${download_cmd}`, ['-u', `${url}`, '-o', `${download_path}`, '-c', `${thread}`])
+  }
   video.completed = false;
   video.save()
 
@@ -60,9 +67,10 @@ exports.generateVideoUri = async (req) => {
   }
   else{
     var m3u8_name = path.basename(req.query.uri);
-    if(!m3u8_name.endsWith('.m3u8')){
-      return '';
-    }
+    // TODO: OKAY?
+    // if(!m3u8_name.endsWith('.m3u8')){
+    //   return '';
+    // }
     var video = new Video({ url: req.query.uri, token: "", website:req.query.rf, completed: false});
     await video.save();
     var videoList = req.user.videoList;

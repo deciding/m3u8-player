@@ -1,4 +1,6 @@
 # m3u8-player
+mongod --dbpath /var/lib/mongo --logpath /var/log/mongodb/mongod.log --fork
+
 M3U8 Player in browser. Play any live stream m3u8 link with this webapp at https://bharadwajpro.github.io/m3u8-player
 
 I created this website because VLC is unstable in playing live streams. It buffers a lot.
