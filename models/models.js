@@ -45,7 +45,39 @@ const UserSchema = new Schema({
 
 const User = mongoose.model('user', UserSchema);
 const Video = mongoose.model('video', VideoSchema);
+
+
+
+// 18
+
+const Video18Schema = new Schema({
+ index: {
+  type: String,
+ },
+ url: {
+  type: String,
+ },
+ title: {
+  type: String,
+ },
+ tags: [{
+  type: String,
+ }],
+ cover: {
+  type: String,
+ },
+ imgs: [{
+  type: String,
+ }],
+ player: {
+  type: String,
+ },
+});
+
+const Video18 = mongoose.model('video18', Video18Schema);
+
 module.exports = { 
     'User': User, 
     'Video': Video,
+    'Video18': Video18,
 };

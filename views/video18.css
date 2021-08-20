@@ -1,0 +1,32 @@
+.list{
+	width: 300px;
+	height: 200px;
+}
+.list img {
+	width: 300px;
+	height: 200px;
+	float: left;
+}
+.footer {
+    position: fixed;
+    bottom: 20px;
+    width: 100%;
+}
+.center {
+    /* width: 500px; */
+    width: 100px;
+    margin: 0 auto;
+}
+
+.page-button {
+	float: left;
+}
+
+#page-number {
+	float: left;
+	width: 20px;
+}
+
+#pages tbody tr td{
+	padding: 2px;
+}

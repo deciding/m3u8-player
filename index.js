@@ -27,6 +27,7 @@ const { pathToFileURL } = require('url');
 const app = express();
 //const port = 3000;
 const port = 6006;
+//const port = 5500;
 
 // mongod --dbpath /var/lib/mongo --logpath /var/log/mongodb/mongod.log --fork
 mongoose
@@ -70,9 +71,10 @@ app.use(async (req, res, next) => {
 
 app.use('/', accesscontrol);
 
-const server = app.listen(port, () => {
-  console.log(`Example app listening on port ${port}!`)
-});
+//const server = app.listen(port, () => {
+//  console.log(`Example app listening on port ${port}!`)
+//});
+const server = app.listen(port, '0.0.0.0')
 
 // HLS
 
