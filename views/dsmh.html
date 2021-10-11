@@ -1,0 +1,99 @@
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+  <link rel="stylesheet" href="dsmh.css">
+</head>
+
+<!--
+    传出去 random，page number，search string
+    传进来 images，titles，links，pages，current page
+-->
+<body>
+    <div class="jumbotron text-center">
+        <h1>DSMH Playlist</h1>
+        <p>Warning: ABC</p> 
+    </div>
+
+    <div class="container">
+            <div id="header" class="header">
+                <table id="pages" class="page-table center ">
+                    <tbody >
+                        <tr>
+                            <td>
+                                <input type="text" id="search" name="search" class="search-input" value="{{search}}">
+                            </td>
+                            <td>
+                                <input type="button" value="Search" id="search-button" class='search-button'>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+            </div>
+
+
+            <div id="gallery" class="gallery">
+            {{#infos}}
+                <a style="float:left" href="/dsmh1/{{index}}">
+                    <div class="list" title="{{title}}">
+                        <img src="{{cover}}" class="dsmh_preview" />
+                    </div>
+                </a>
+            {{/infos}}
+            </div>
+
+            <!-- Add videos to Gallery -->
+            <!--a href="images/Big_Buck_Bunny.mp4"></a>
+            <video controls="controls" preload="metadata">
+                <source src="https://www.w3schools.com/html/mov_bbb.mp4#t=0.5" type="video/mp4">
+            </video-->
+            <!-- {{#meta}}
+                <div id="{{iid}}div" class="col-sm-4">
+                <video loop style="width: 100%; height: 30%;" muted>
+                    <source src="{{src}}" type="video/mp4">
+                    src not found
+                </video>
+                <br/>
+                <label>Downloaded: {{completed}}</label>
+                <label>
+                    <a href="{{url}}">Name: {{name}}. </a>
+                    <a id="{{iid}}" class='delete' >[X]</a>
+                    <a id="re_{{iid}}" class='redownload' >[O]</a>
+                </label>
+                </div>
+            {{/meta}} -->
+
+            <div id="footer" class="footer">
+                <table id="pages" class="page-table center ">
+                    <tbody >
+                        <tr>
+                            {{#pages}}
+                                {{#a}}
+                                <td><a class="page-link">{{num}}</a></td>
+                                {{/a}}
+                                {{^a}}
+                                <td>{{num}}</td>
+                                {{/a}}
+                            {{/pages}}
+                            <td>
+                                <input type="text" id="page-number" name="page-number" class="page-number" value={{cur}}>
+                            </td>
+                            <td>
+                                <input type="button" value="Go" id="go-button" class='page-button'>
+                            </td>
+                            <td>
+                                <input type="button" value="random" id="page-random" class='page-button'>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        
+    </div>
+  <script src="dsmh.js"></script>
+</body>

@@ -22,7 +22,7 @@ exports.loadVideos = async (req, res) => {
     videos = []
     var rand;
     for(var i = 0; i < page_size; i++){
-      rand= Math.floor(Math.random() * i * 10000)
+      rand= Math.floor(Math.random() * 10000)
       videos.push(await Video18.findOne().skip(rand))
     }
   }

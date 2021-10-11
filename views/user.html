@@ -4,6 +4,8 @@
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+  <link rel="stylesheet" href="video18.css">
 </head>
 
 <body>
@@ -39,5 +41,30 @@
                 </div>
             {{/meta}}
         
+    </div>
+    <div id="footer" class="footer">
+        <table id="pages" class="page-table center ">
+            <tbody >
+                <tr>
+                    {{#pages}}
+                        {{#a}}
+                        <td><a class="page-link">{{num}}</a></td>
+                        {{/a}}
+                        {{^a}}
+                        <td>{{num}}</td>
+                        {{/a}}
+                    {{/pages}}
+                    <td>
+                        <input type="text" id="page-number" name="page-number" class="page-number" value={{cur}}>
+                    </td>
+                    <td>
+                        <input type="button" value="Go" id="go-button" class='page-button'>
+                    </td>
+                    <td>
+                        <input type="button" value="random" id="page-random" class='page-button'>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
     </div>
 </body>

@@ -2,7 +2,7 @@ import requests
 import sys
 
 def get_top_k_url(text, k):
-    ind='videos'
+    ind='dsmh'
     j={
     "query": {
         "match": {

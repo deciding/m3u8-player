@@ -36,4 +36,15 @@ $(document).ready(function() {
     //    //$('video', this).get(0).pause(); 
     //    e.target.pause(); 
     //}
+    $('#go-button').click(function(){
+        var pageno = $('#page-number').val()
+        window.location.href=window.location.origin + `/user?pageno=${pageno}`;
+        })
+    //$('#page-random').click(function(){
+    //    window.location.href=window.location.origin + '/user?random=true';
+    //    })
+    $('a.page-link').click(function(){
+        var pageno = $(this).text()
+        window.location.href=window.location.origin + `/user?pageno=${pageno}`;
+        })
 });

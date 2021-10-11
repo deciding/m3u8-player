@@ -163,6 +163,10 @@ var download_path = 'downloads'
 
 // Home page route.
 exports.loadVideos = async (req, res) => {
+  var page_size = 20;
+  var pageno = req.query.pageno || '1';
+  page_start = (pageno-1) * page_size
+  page_end = (pageno) * page_size
   const user = res.locals.loggedInUser;
   var videoList = user.videoList;
   var video, token, url, website, completed;
@@ -171,6 +175,7 @@ exports.loadVideos = async (req, res) => {
   var m3u8ID, previewUrl;
   var name_src_completed_preview=[];
   var new_completed;
+  videoList = videoList.slice(videoList.length-page_end, videoList.length-page_start);
 
   for(i = 0; i < videoList.length; i++){
     video = await Video.findById(videoList[i])
@@ -204,7 +209,24 @@ exports.loadVideos = async (req, res) => {
     name_src_completed_preview.unshift({'name': website, 'url': srcUrl, 'completed': completed?'Completed':'Not finished', 'src': previewUrl, 'iid': m3u8ID})
   }
   
-  res.render('user', {'meta': name_src_completed_preview})
+  var pages_left = pageno - 5;
+  var pages_right = pageno + 5; // we now don't check the upper bound
+  if(pages_left < 1){
+    pages_left = 1
+    pages_right = 11
+  }
+
+  var pages = []
+  for (var i = pages_left;i<pages_right;i++){
+    if(i == pageno){
+      pages.push({'num': i, 'a': false})
+    }
+    else{
+      pages.push({'num': i, 'a': true})
+    }
+  }
+
+  res.render('user', {'meta': name_src_completed_preview, 'pages': pages})
 }
 
 // TODO

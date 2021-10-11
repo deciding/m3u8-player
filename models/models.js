@@ -74,10 +74,48 @@ const Video18Schema = new Schema({
  },
 });
 
+const DsmhContentSchema = new Schema({
+ chp: {
+  type: Number,
+ },
+ chp_imgs: [{
+  type: String,
+ }],
+});
+
+const DsmhSchema = new Schema({
+ index: {
+  type: String,
+ },
+ url: {
+  type: String,
+ },
+ title: {
+  type: String,
+ },
+ writer: {
+  type: String,
+ },
+ cover: {
+  type: String,
+ },
+ imgs: [{
+  type: DsmhContentSchema,
+ }],
+ update: {
+  type: Number,
+ },
+ downloaded: {
+  type: Boolean,
+ },
+});
+
 const Video18 = mongoose.model('video18', Video18Schema);
+const Dsmh = mongoose.model('dsmh', DsmhSchema);
 
 module.exports = { 
     'User': User, 
     'Video': Video,
     'Video18': Video18,
+    'Dsmh': Dsmh,
 };

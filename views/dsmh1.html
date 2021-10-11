@@ -1,0 +1,40 @@
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+  <link rel="stylesheet" href="/dsmh.css">
+</head>
+
+<!--
+    传出去 random，page number，search string
+    传进来 images，titles，links，pages，current page
+-->
+<body>
+    <div class="jumbotron text-center">
+        <h1>DSMH Chapter</h1>
+        <p>Warning: ABC</p> 
+    </div>
+
+    <div class="container">
+            <div id="header" class="header">
+                <h1>{{title}}</h1>
+                <p>{{writer}}</p>
+                <p>{{update}}</p>
+            </div>
+
+
+            <ul>
+            {{#infos}}
+                <li>
+                <a style="float:left" href="/dsmh2/{{index}}_{{chap}}">{{chap}}</a>
+                </li>
+            {{/infos}}
+            </ul>
+
+
+        
+    </div>
+</body>
